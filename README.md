@@ -36,8 +36,8 @@ A modern weather application built with React, TypeScript, and Vite that provide
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/react-weather-api.git
-   cd react-weather-api
+   git clone https://github.com/abdulrahimchotu/React-weather-api
+   cd React-weather-api
    ```
 
 2. Install dependencies:
