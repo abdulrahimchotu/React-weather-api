@@ -1,31 +1,16 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
-import axios from "axios";
-
-export interface WeatherData {
-    address: string;
-    days: DayWeather[];
-}
-
-export interface DayWeather {
-    conditions: string;
-    datetime: string;
-    temp: number;
-    pressure: number;
-    humidity: number;
-    windspeed: number;
-    sunrise: string;
-    sunset: string;
-    feelslike: number;
-}
+import { fetchWeatherData, WeatherData } from "./Api";
 
 export interface WeatherContextState {
+    city: string | null;
+    setCity: (city: string | null) => void;
     data: WeatherData | null;
     loading: boolean;
     error: string | null;
+    clearWeather: () => void;
 }
 
-interface Props {
-    city: string;
+interface WeatherProviderProps {
     children: ReactNode;
 }
 
@@ -39,43 +24,46 @@ export const useWeather = () => {
     return context;
 };
 
-export const WeatherProvider = ({ city, children }: Props) => {
+export const WeatherProvider = ({ children }: WeatherProviderProps) => {
+    const [city, setCity] = useState<string | null>(null);
+
     const [data, setData] = useState<WeatherData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const getWeather = useCallback(async () => {
-        setLoading(true);
+    const clearWeather = useCallback(() => {
+        setData(null);
         setError(null);
-
-        try {
-            const res = await axios.get<WeatherData>(
-                `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${city}/next7days`,
-                {
-                    params: {
-                        key: import.meta.env.VITE_WEATHER_API_KEY,
-                        unitGroup: 'metric',
-                        contentType: 'json'
-                    }
-                }
-            );
-            setData(res.data);
-            setLoading(false);
-        } catch (err) {
-            console.error('Error fetching weather data:', err);
-            setError('Failed to fetch weather data. Please try again or check your API key.');
-            setLoading(false);
-        }
-    }, [city]);
+    }, []);
 
     useEffect(() => {
-        if (city) {
-            getWeather();
-        }
-    }, [city, getWeather]);
+        const getWeather = async () => {
+            if (!city) return;
+
+            setLoading(true);
+            setError(null);
+
+            const response = await fetchWeatherData(city);
+
+            setData(response.data);
+            setError(response.error);
+            setLoading(false);
+        };
+
+        getWeather();
+    }, [city]);
+
+    const contextValue: WeatherContextState = {
+        city,
+        setCity,
+        data,
+        loading,
+        error,
+        clearWeather
+    };
 
     return (
-        <WeatherContext.Provider value={{ data, loading, error }}>
+        <WeatherContext.Provider value={contextValue}>
             {children}
         </WeatherContext.Provider>
     );

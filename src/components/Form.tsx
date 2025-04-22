@@ -1,32 +1,24 @@
-import { useState, FormEvent } from "react";
-import { WeatherProvider } from "../Context";
-import { MapPin } from "lucide-react";
-import { Temp } from "./Temp";
+import { FormEvent } from "react";
+import { useWeather } from "../Context";
+import {MapPin,Search,X } from "lucide-react";
 
 export const Form = () => {
-  const [city, setCity] = useState<string | null>(null);
-  const [clicked, setClicked] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { city, setCity, error, clearWeather } = useWeather();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
 
     const formData = new FormData(e.currentTarget);
     const newCity = formData.get('city')?.toString().trim();
 
     if (newCity) {
       setCity(newCity);
-      setClicked(true);
-    } else {
-      setError('Please enter a valid city name');
     }
   };
 
   const handleClear = () => {
-    setClicked(false);
     setCity(null);
-    setError(null);
+    clearWeather();
     (document.getElementById('cityForm') as HTMLFormElement).reset();
   };
 
@@ -37,8 +29,14 @@ export const Form = () => {
         <h1 className="text-3xl font-bold text-gray-800">Weather Lookup</h1>
       </div>
 
-      <form id="cityForm" className="space-y-4" onSubmit={handleSubmit}>
-        <div>
+      {error && (
+        <div className="p-3 mb-4 bg-red-100 text-red-700 rounded-lg text-sm" role="alert">
+          {error}
+        </div>
+      )}
+
+      <form id="cityForm" className="flex gap-2" onSubmit={handleSubmit}>
+        <div className="relative flex-1">
           <input
             id="city"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -53,37 +51,25 @@ export const Form = () => {
           />
         </div>
 
-        {error && (
-          <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm" role="alert">
-            {error}
-          </div>
-        )}
+        <button
+          className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          type="submit"
+          aria-label="Search for weather"
+        >
+          <Search className="w-5 h-5" />
+        </button>
 
-        <div className="flex gap-2">
+        {city && (
           <button
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            type="submit"
+            className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
+            type="button"
+            onClick={handleClear}
+            aria-label="Clear search"
           >
-            Get Weather
+            <X className="w-5 h-5" />
           </button>
-
-          {clicked && (
-            <button
-              className="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
-              type="button"
-              onClick={handleClear}
-            >
-              Clear
-            </button>
-          )}
-        </div>
+        )}
       </form>
-
-      {clicked && city && (
-        <WeatherProvider city={city}>
-          <Temp />
-        </WeatherProvider>
-      )}
     </div>
   );
 };

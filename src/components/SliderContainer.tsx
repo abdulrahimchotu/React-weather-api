@@ -1,28 +1,11 @@
-import { useState } from "react";
-import { useWeather } from "../Context";
-import {
-    Sun,
-    Cloud,
-    CloudRain,
-    CloudSnow,
-    CloudFog,
-    Wind,
-    Droplets,
-    Gauge,
-    Thermometer,
-    Sunrise,
-    Sunset,
-    ChevronLeft,
-    ChevronRight,
-    Calendar,
-    Loader2,
-    AlertCircle
-} from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useWeather } from '../Context';
+import {Cloud,Wind,Droplets,Gauge,Thermometer,Sunrise,Sunset,ChevronLeft,ChevronRight,Calendar,Loader2,AlertCircle,Sun,CloudRain,CloudSnow,CloudFog } from "lucide-react";
 import { useKeenSlider } from 'keen-slider/react';
 import "keen-slider/keen-slider.min.css";
 
 export const Temp = () => {
-    const { data, loading, error } = useWeather();
+    const { data, loading, error, city } = useWeather();
     const [currentSlide, setCurrentSlide] = useState(0);
     const [loaded, setLoaded] = useState(false);
 
@@ -36,8 +19,15 @@ export const Temp = () => {
         },
         loop: true,
         mode: "snap",
-        slides: { perView: 1, spacing: 15 },
+        slides: { perView: 1, spacing: 20 },
     });
+
+    useEffect(() => {
+        if (data) {
+            setCurrentSlide(0);
+            instanceRef.current?.moveToIdx(0);
+        }
+    }, [data]);
 
     const formatDate = (dateStr: string): string => {
         return new Date(dateStr).toLocaleDateString("en-US", {
@@ -57,19 +47,25 @@ export const Temp = () => {
     const getWeatherIcon = (condition: string) => {
         const lowerCondition = condition.toLowerCase();
         if (lowerCondition.includes('sun') || lowerCondition.includes('clear')) {
-            return <Sun className="h-12 w-12 text-yellow-500" />;
+            return <Sun className="h-16 w-16 text-yellow-500" />;
         } else if (lowerCondition.includes('rain') || lowerCondition.includes('drizzle')) {
-            return <CloudRain className="h-12 w-12 text-blue-500" />;
+            return <CloudRain className="h-16 w-16 text-blue-600" />;
         } else if (lowerCondition.includes('snow')) {
-            return <CloudSnow className="h-12 w-12 text-blue-200" />;
+            return <CloudSnow className="h-16 w-16 text-blue-400" />;
         } else if (lowerCondition.includes('fog') || lowerCondition.includes('mist')) {
-            return <CloudFog className="h-12 w-12 text-gray-400" />;
+            return <CloudFog className="h-16 w-16 text-gray-500" />;
+        } else if (lowerCondition.includes('cloud') || lowerCondition.includes('overcast')) {
+            return <Cloud className="h-16 w-16 text-gray-600" />;
+        } else if (lowerCondition.includes('partially cloudy') || lowerCondition.includes('partly cloudy')) {
+            return <Cloud className="h-16 w-16 text-blue-500" />;
         } else {
-            return <Cloud className="h-12 w-12 text-gray-500" />;
+            return <Cloud className="h-16 w-16 text-gray-600" />;
         }
     };
 
-    // Loading state
+    const getUnitSymbol = () => '°';
+    const getSpeedUnit = () => 'km/h';
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-40 p-8 bg-white/50 rounded-lg shadow-sm">
@@ -79,7 +75,6 @@ export const Temp = () => {
         );
     }
 
-    // Error state
     if (error) {
         return (
             <div className="p-6 bg-red-50 rounded-lg border border-red-200 text-center">
@@ -89,28 +84,29 @@ export const Temp = () => {
             </div>
         );
     }
+    if (!city) {
+        return null;
+    }
 
-    // No data state
     if (!data || !data.days || data.days.length === 0) {
         return (
-            <div className="p-6 bg-yellow-50 rounded-lg border border-yellow-200 text-center">
+            <div className="p-6 bg-yellow-50 rounded-lg border border-yellow-200 text-center mt-4">
                 <p className="text-yellow-600">No weather data available</p>
             </div>
         );
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-4">
+        <div className="max-w-4xl mx-auto p-4 overflow-hidden">
             <h1 className="text-2xl font-semibold text-center mb-6">
                 {data.address}
             </h1>
 
             <div className="relative">
-                <div ref={sliderRef} className="keen-slider">
+                <div ref={sliderRef} className="keen-slider overflow-hidden">
                     {data.days.map((day) => (
                         <div key={day.datetime} className="keen-slider__slide">
-                            <div className="bg-white rounded-xl shadow-lg p-6 overflow-hidden">
-                                {/* Date and Main Weather */}
+                            <div className="bg-blue-300/90 rounded-xl shadow-lg p-6 overflow-hidden mx-auto max-w-lg">
                                 <div className="flex flex-col items-center mb-6">
                                     <div className="flex items-center gap-2 mb-2">
                                         <Calendar className="h-5 w-5 text-blue-500" />
@@ -120,53 +116,51 @@ export const Temp = () => {
                                     </div>
                                     <div className="flex flex-col items-center">
                                         {getWeatherIcon(day.conditions)}
-                                        <div className="text-4xl font-bold mt-2">
-                                            {Math.round(day.temp)}°C
+                                        <div className="text-5xl font-bold mt-2">
+                                            {Math.round(day.temp)}{getUnitSymbol()}
                                         </div>
-                                        <p className="text-gray-600 mt-1">
+                                        <p className="text-gray-700 mt-1">
                                             {day.conditions}
                                         </p>
-                                        <div className="flex items-center gap-1 mt-1 text-gray-500">
+                                        <div className="flex items-center gap-1 mt-1 text-gray-600">
                                             <Thermometer className="h-4 w-4" />
-                                            <span className="text-sm">Feels like {Math.round(day.feelslike)}°C</span>
+                                            <span className="text-sm">Feels like {Math.round(day.feelslike)}{getUnitSymbol()}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Weather Details Grid */}
                                 <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm">
                                         <Droplets className="h-6 w-6 text-blue-500" />
                                         <div>
                                             <p className="text-xs text-gray-500">Humidity</p>
                                             <p className="font-medium">{day.humidity}%</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm">
                                         <Wind className="h-6 w-6 text-blue-500" />
                                         <div>
                                             <p className="text-xs text-gray-500">Wind Speed</p>
-                                            <p className="font-medium">{Math.round(day.windspeed)} km/h</p>
+                                            <p className="font-medium">{Math.round(day.windspeed)} {getSpeedUnit()}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm">
                                         <Gauge className="h-6 w-6 text-blue-500" />
                                         <div>
                                             <p className="text-xs text-gray-500">Pressure</p>
                                             <p className="font-medium">{day.pressure} hPa</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm">
                                         <Thermometer className="h-6 w-6 text-blue-500" />
                                         <div>
                                             <p className="text-xs text-gray-500">Temperature</p>
-                                            <p className="font-medium">{Math.round(day.temp)}°C</p>
+                                            <p className="font-medium">{Math.round(day.temp)}{getUnitSymbol()}</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Sunrise and Sunset */}
-                                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-orange-50 to-blue-50 rounded-lg">
+                                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-orange-200 to-blue-100 rounded-lg shadow-sm">
                                     <div className="flex items-center gap-3">
                                         <Sunrise className="h-6 w-6 text-orange-500" />
                                         <div>
@@ -215,15 +209,15 @@ export const Temp = () => {
                             <ChevronRight className="h-5 w-5" />
                         </button>
 
-                        <div className="flex justify-center gap-2 mt-6">
+                        <div className="flex justify-center gap-2 mt-6 mb-2">
                             {data.days.map((_, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => instanceRef.current?.moveToIdx(idx)}
                                     className={`h-2 rounded-full transition-all duration-200
                                       ${currentSlide === idx
-                                            ? "w-6 bg-blue-500"
-                                            : "w-2 bg-gray-300 hover:bg-gray-400"
+                                            ? "w-6 bg-blue-600"
+                                            : "w-2 bg-gray-700 hover:bg-white"
                                         }`}
                                     aria-label={`Go to day ${idx + 1}`}
                                 />

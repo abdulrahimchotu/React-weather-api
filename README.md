@@ -1,54 +1,96 @@
-# React + TypeScript + Vite
+# React Weather API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![React Weather App](./screenshot.png)
 
-Currently, two official plugins are available:
+A modern weather application built with React, TypeScript, and Vite that provides detailed weather forecasts using the Visual Crossing Weather API.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **7-Day Weather Forecast**: View detailed weather information for the next 7 days
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Detailed Weather Information**: Temperature, humidity, wind speed, pressure, sunrise, and sunset times
+- **Clean UI**: Modern and intuitive user interface with smooth animations
+- **Error Handling**: Proper error handling and loading states
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Technologies Used
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- **React**: Frontend library for building user interfaces
+- **TypeScript**: Static typing for JavaScript
+- **Vite**: Next-generation frontend tooling
+- **Tailwind CSS**: Utility-first CSS framework
+- **Keen Slider**: Lightweight touch slider
+- **Lucide React**: Beautiful icons
+- **Axios**: Promise-based HTTP client
+- **Visual Crossing API**: Weather data provider
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+- Visual Crossing API key (get one at [Visual Crossing](https://www.visualcrossing.com/))
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/react-weather-api.git
+   cd react-weather-api
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the root directory and add your API key:
+
+   ```env
+   VITE_WEATHER_API_KEY=your_visual_crossing_api_key
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open your browser and navigate to `http://localhost:5173`
+
+## Project Structure
+
+```text
+src/
+├── components/       # React components
+│   ├── Form.tsx      # Search form component
+│   └── Temp.tsx      # Weather display component
+├── Context.tsx       # Weather context provider
+├── api.tsx           # API service functions
+├── App.tsx           # Main application component
+├── main.tsx          # Application entry point
+└── index.css         # Global styles
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Deployment
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+To build the application for production:
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+npm run build
 ```
+
+The build artifacts will be stored in the `dist/` directory.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- [Visual Crossing](https://www.visualcrossing.com/) for providing the weather API
+- [Tailwind CSS](https://tailwindcss.com/) for the styling framework
+- [Lucide React](https://lucide.dev/) for the beautiful icons
+- [Keen Slider](https://keen-slider.io/) for the carousel functionality
